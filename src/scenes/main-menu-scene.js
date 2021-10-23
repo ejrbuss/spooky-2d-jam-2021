@@ -42,7 +42,7 @@ export class MainMenuScene extends Phaser.Scene {
 			this.playButton.setBackgroundColor(noHoverColor);
 		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
-			this.scene.start(GameScene);
+			this.scene.start(GameScene.name);
 		});
 	}
 }

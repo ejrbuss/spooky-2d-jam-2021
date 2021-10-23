@@ -1,5 +1,8 @@
 import Phaser from "phaser";
 
+// Change to false before release
+const DEBUG = true;
+
 // Change this to false if you are having performance issues
 const USE_DEVICE_PIXELS = true;
 
@@ -9,6 +12,7 @@ const RENDER_HEIGHT = 576 * PIXEL_RATIO;
 
 // Seperate global configuration from index.js so it can be easily imported
 export const CONFIG = {
+	debug: DEBUG,
 	width: RENDER_WIDTH,
 	height: RENDER_HEIGHT,
 	widthPercentUnit: RENDER_WIDTH / 100,

@@ -6,6 +6,7 @@ import placeholderPlayer from "./assets/images/placeholder-player.png";
 export const ASSETS = {
 	images: {
 		mainMenuBackground: placeholderBackground,
+		gameBackground: placeholderBackground,
 		player: placeholderPlayer,
 	},
 	audio: {},

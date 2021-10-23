@@ -4,18 +4,17 @@ import { GameScene } from "./scenes/game-scene.js";
 import { MainMenuScene } from "./scenes/main-menu-scene.js";
 
 // Change me to the current scene you are working on!
-const INITIAL_SCENE = MainMenuScene;
+const INITIAL_SCENE = GameScene;
 
 const SCENES = [MainMenuScene, GameScene];
 
 const canvas = document.getElementById("game-canvas");
 
-const game = new Phaser.Game({
+new Phaser.Game({
+	antialias: true,
 	type: Phaser.WEBGL,
 	width: CONFIG.width,
 	height: CONFIG.height,
-	scene: SCENES,
+	scene: [INITIAL_SCENE, ...SCENES.filter((scene) => scene !== INITIAL_SCENE)],
 	canvas,
 });
-
-game.scene.start(INITIAL_SCENE);
