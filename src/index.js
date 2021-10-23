@@ -1,39 +1,16 @@
-import Phaser from 'phaser';
-import logoImg from './assets/logo.png';
+import Phaser from "phaser";
+import { CONFIG } from "./config.js";
+import { MainMenuScene } from "./scenes/main-menu-scene.js";
 
-class MyGame extends Phaser.Scene
-{
-    constructor ()
-    {
-        super();
-    }
+// Change me to the current scene you are working on!
+const INITIAL_SCENE = MainMenuScene;
 
-    preload ()
-    {
-        this.load.image('logo', logoImg);
-    }
-      
-    create ()
-    {
-        const logo = this.add.image(400, 150, 'logo');
-      
-        this.tweens.add({
-            targets: logo,
-            y: 450,
-            duration: 2000,
-            ease: "Power2",
-            yoyo: true,
-            loop: -1
-        });
-    }
-}
+const canvas = document.getElementById("game-canvas");
 
-const config = {
-    type: Phaser.AUTO,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    scene: MyGame
-};
-
-const game = new Phaser.Game(config);
+new Phaser.Game({
+	type: Phaser.WEBGL,
+	width: CONFIG.width,
+	height: CONFIG.height,
+	scene: INITIAL_SCENE,
+	canvas,
+});
