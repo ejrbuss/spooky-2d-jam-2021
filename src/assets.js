@@ -8,6 +8,7 @@ export const ASSETS = {
 		mainMenuBackground: placeholderBackground,
 		gameBackground: placeholderBackground,
 		player: placeholderPlayer,
+		you: placeholderPlayer,
 	},
 	audio: {},
 };
