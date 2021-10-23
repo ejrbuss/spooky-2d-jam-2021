@@ -23,3 +23,5 @@ npm start
 ```
 Go to `localhost:8080` in your browser of choice and you should find a running game
 
+## Built by a Team of Nerds
+Eric, Torrey, Lilli, Jon, and Claire!
