@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import { CONFIG } from "./config.js";
 import { MainMenuScene } from "./scenes/main-menu-scene.js";
+import { OpeningScene } from "./scenes/opening-scene.js";
 
 // Change me to the current scene you are working on!
-const INITIAL_SCENE = MainMenuScene;
+const INITIAL_SCENE = OpeningScene;
 
 const canvas = document.getElementById("game-canvas");
 
