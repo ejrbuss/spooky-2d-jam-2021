@@ -221,6 +221,7 @@ export class GameScene extends Phaser.Scene {
 				if (!highscores) highscores = [];
 				highscores.push(parseInt(this.score));
 				highscores.sort();
+				highscores.reverse();
 				highscores.slice(0, 5);
 				localStorage.setItem("highscores", JSON.stringify(highscores));
 				this.scene.start(VictoryScene.name);
