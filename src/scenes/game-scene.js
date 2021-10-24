@@ -76,6 +76,7 @@ export class GameScene extends Phaser.Scene {
 			ASSETS.images.notes[LANE_RIGHT]
 		);
 		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
+		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
 		ASSETS.images.ghosties.forEach((ghostieImage) => {
 			this.load.image(ghostieImage, ghostieImage);
 		});
