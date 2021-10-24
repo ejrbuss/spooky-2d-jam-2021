@@ -72,7 +72,7 @@ export class MainMenuScene extends Phaser.Scene {
 			this.add.text(
 				3 * CONFIG.widthPercentUnit,
 				3 * CONFIG.widthPercentUnit,
-				`HIGHSCORE: ${highScore[0]}`,
+				`HIGHSCORE: ${highScore[0].score}`,
 				{
 					fontSize: Math.floor(2 * CONFIG.widthPercentUnit),
 					fontFamily: "Courier",
