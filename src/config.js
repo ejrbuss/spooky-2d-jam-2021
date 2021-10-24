@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 // Change to false before release
-const DEBUG = false;
+const DEBUG = true;
 
 const RENDER_WIDTH = 1920;
 const RENDER_HEIGHT = 1080;

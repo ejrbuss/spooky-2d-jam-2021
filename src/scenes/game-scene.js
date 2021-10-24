@@ -28,11 +28,11 @@ const NOTE_HEIGHT_RATIO = 0.6;
 
 const PLAYER_UNIT = 15.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
-const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
+const PLAYER_LANE_SHIFT = 19.0 * CONFIG.widthPercentUnit;
 
 const YOU_UNIT = 4.0 * CONFIG.widthPercentUnit;
 const YOU_Y = V_CENTER - 16 * CONFIG.heightPercentUnit;
-const YOU_LANE_SHIFT = 3 * CONFIG.widthPercentUnit;
+const YOU_LANE_SHIFT = 2.5 * CONFIG.widthPercentUnit;
 
 const PLAYER_SPEED = 0.1 * CONFIG.widthPercentUnit;
 const YOU_SPEED = 0.01 * CONFIG.widthPercentUnit;
@@ -281,7 +281,7 @@ export class GameScene extends Phaser.Scene {
 		const toWidth = 10.0 * CONFIG.widthPercentUnit;
 		const fromHeight = fromWidth * NOTE_HEIGHT_RATIO;
 		const toHeight = toWidth * NOTE_HEIGHT_RATIO;
-		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
+		const fromX = this.targetX(YOU_LANE_SHIFT * 0.9, lane);
 		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
 		const fromY = YOU_Y + 1.0 * CONFIG.heightPercentUnit;
 		const toY = PLAYER_Y;
@@ -388,8 +388,7 @@ export class GameScene extends Phaser.Scene {
 	 */
 	moveToTarget(toMove, targetX, maxDelta) {
 		if (toMove.x === targetX) {
-			toMove.setRotation(0);
-			return;
+			return toMove.setRotation(0);
 		}
 		if (toMove.x > targetX) {
 			toMove.setX(Math.max(targetX, toMove.x - maxDelta));
@@ -403,11 +402,11 @@ export class GameScene extends Phaser.Scene {
 	targetX(shift, lane) {
 		switch (lane) {
 			case LANE_LEFT:
-				return (H_CENTER - shift) * 1.01; //add slight 1% compensation to make up for uneven lanes
+				return H_CENTER - shift;
 			case LANE_CENTER:
 				return H_CENTER;
 			case LANE_RIGHT:
-				return (H_CENTER + shift) * 0.995;
+				return H_CENTER + shift;
 		}
 	}
 
