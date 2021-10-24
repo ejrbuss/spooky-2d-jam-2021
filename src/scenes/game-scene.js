@@ -216,14 +216,7 @@ export class GameScene extends Phaser.Scene {
 		this.gameSong.once(Phaser.Sound.Events.COMPLETE, () => {
 			this.cameras.main.fadeOut(1000);
 			this.time.delayedCall(1000, () => {
-				// TODO replace with outro scene
-				let highscores = JSON.parse(localStorage.getItem("highscores"));
-				if (!highscores) highscores = [];
-				highscores.push(parseInt(this.score));
-				highscores.sort();
-				highscores.slice(0, 5);
-				localStorage.setItem("highscores", JSON.stringify(highscores));
-				this.scene.start(VictoryScene.name);
+				this.victory();
 			});
 		});
 		this.quarterBeatTimer = this.time.addEvent({
@@ -250,6 +243,17 @@ export class GameScene extends Phaser.Scene {
 		}
 
 		this.cameras.main.fadeIn(1000);
+	}
+
+	victory() {
+		let highscores = JSON.parse(localStorage.getItem("highscores"));
+		if (!highscores) highscores = [];
+		highscores.push(this.score);
+		highscores.sort();
+		highscores.reverse();
+		highscores.slice(0, 5);
+		localStorage.setItem("highscores", JSON.stringify(highscores));
+		this.scene.start(VictoryScene.name);
 	}
 
 	pressLeft() {
@@ -394,6 +398,7 @@ export class GameScene extends Phaser.Scene {
 			this.gameSong.stop();
 			this.cameras.main.fadeOut(1000);
 			this.time.delayedCall(1000, () => {
+				this.victory();
 				// TODO replace with failure scene
 				this.scene.start(MainMenuScene.name);
 			});

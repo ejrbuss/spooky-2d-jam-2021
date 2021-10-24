@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { ASSETS } from "../assets";
 import { CONFIG } from "../config.js";
+import { MainMenuScene } from "./main-menu-scene.js";
 
 export class VictoryScene extends Phaser.Scene {
 	constructor() {
@@ -12,46 +13,53 @@ export class VictoryScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.background = this.add.image(
+			CONFIG.width / 2,
+			CONFIG.height / 2,
+			ASSETS.images.victory
+		);
+		this.background.setDisplaySize(CONFIG.width, CONFIG.height);
 
-        this.background = this.add.image(
-            CONFIG.width / 2,
-            CONFIG.height / 2,
-            ASSETS.images.victory
-        );
-        this.background.setDisplaySize(CONFIG.width, CONFIG.height);
-
-        
-        this.label = this.add.text(
-            3 * CONFIG.widthPercentUnit,
+		this.label = this.add.text(
+			3 * CONFIG.widthPercentUnit,
 			3 * CONFIG.widthPercentUnit,
 			"",
 			{
-                fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+				fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
 				fontFamily: "Courier",
 				fill: "rgb(255, 255, 255)",
 			}
-            );
-            
-            let highScoreString = "HIGHSCORES\n------------------------------";
-            
-        const scores = this.getHighScores();
-        for (let scoreId in scores) { 
-            const score = scores[scoreId];
-            highScoreString += `\n${(parseInt(scoreId) + 1).toString()}:\t${score.toString()}`;
-        }
-        this.typewriteText(highScoreString);
+		);
 
+		let highScoreString = "HIGHSCORES\n------------------------------";
+
+		const scores = this.getHighScores();
+		for (let scoreId in scores) {
+			const score = scores[scoreId];
+			highScoreString += `\n${(
+				parseInt(scoreId) + 1
+			).toString()}:\t${score.toString()}`;
+		}
+		this.typewriteText(highScoreString);
+		this.input.keyboard.on(
+			Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
+			({ keyCode }) => {
+				if (keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE) {
+					this.scene.start(MainMenuScene.name);
+				}
+			}
+		);
 	}
 
-    getHighScores() {
-        let scores = JSON.parse(localStorage.getItem("highscores"));
-        if (!scores) scores = [];
-        let result = [];
-        for (let score of scores) {
-            result.push(parseInt(score))
-        }
-        return result;
-    }
+	getHighScores() {
+		let scores = JSON.parse(localStorage.getItem("highscores"));
+		if (!scores) scores = [];
+		let result = [];
+		for (let score of scores) {
+			result.push(parseInt(score));
+		}
+		return result;
+	}
 
 	typewriteText(text) {
 		const length = text.length;
