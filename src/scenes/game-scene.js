@@ -198,7 +198,7 @@ export class GameScene extends Phaser.Scene {
 
 		this.cameras.main.fadeIn(1000);
 		this.time.delayedCall(1000, () => {
-			this.gameSong = this.sound.add(ASSETS.audio.gameSong, { volume: 0.1 });
+			this.gameSong = this.sound.add(ASSETS.audio.gameSong); //, { volume: 0.1 });
 			this.gameSong.play();
 			this.gameSong.once(Phaser.Sound.Events.COMPLETE, () => {
 				this.cameras.main.fadeOut(1000);
