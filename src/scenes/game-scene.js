@@ -314,16 +314,12 @@ export class GameScene extends Phaser.Scene {
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;
 		this.score += 100 * this.combo;
-		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this
-		// tween thing it disappears immediately. so i guess i'll just leave it in idk
 		note.setTexture(ASSETS.images.noteSuccess);
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
-			fillColor: {
-				from: Phaser.Display.Color.ValueToColor("rgb(0, 255, 0)").color,
-				to: Phaser.Display.Color.ValueToColor("rgb(0, 255, 0)").color,
-			},
+			alpha: { from: 1, to: 0 },
+			scale: { from: 1, to: 2 },
 			onComplete: () => {
 				note.destroy();
 			},
@@ -338,16 +334,13 @@ export class GameScene extends Phaser.Scene {
 	noteFail(note) {
 		this.health -= 15;
 		this.combo = 0;
-		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this
-		// tween thing it disappears immediately. so i guess i'll just leave it in idk
 		note.setTexture(ASSETS.images.noteFail);
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
-			fillColor: {
-				from: Phaser.Display.Color.ValueToColor("rgb(255, 0, 0)").color,
-				to: Phaser.Display.Color.ValueToColor("rgb(255, 0, 0)").color,
-			},
+			duration: QUARTER_BEAT_MS,
+			alpha: { from: 1, to: 0 },
+			scale: { from: 1, to: 2 },
 			onComplete: () => {
 				note.destroy();
 			},
