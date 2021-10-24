@@ -356,6 +356,9 @@ export class GameScene extends Phaser.Scene {
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
 	noteHit(note) {
+		if (this.health <= 0) {
+			return;
+		}
 		this.nextNoteSound = this.hitSound;
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;
