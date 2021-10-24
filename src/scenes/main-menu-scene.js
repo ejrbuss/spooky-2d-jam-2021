@@ -66,6 +66,20 @@ export class MainMenuScene extends Phaser.Scene {
 		this.menuSong = this.sound.add(ASSETS.audio.menuSong, { loop: true });
 		this.menuSong.play();
 		this.cameras.main.fadeIn(1000);
+
+		const highScore = JSON.parse(localStorage.getItem("highscores"));
+		if (highScore && highScore.length > 0) {
+			this.add.text(
+				3 * CONFIG.widthPercentUnit,
+				3 * CONFIG.widthPercentUnit,
+				`HIGHSCORE: ${highScore[0]}`,
+				{
+					fontSize: Math.floor(2 * CONFIG.widthPercentUnit),
+					fontFamily: "Courier",
+					fill: "rgb(255, 255, 255)",
+				}
+			);
+		}
 	}
 
 	play() {
