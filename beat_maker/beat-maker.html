@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Beat Maker</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="beat-maker.js"></script>
+    <style>
+        body{
+            background-color: #525252;
+            margin: 0;
+        }
+        .main {
+            width: 600px;
+            margin: 0 auto;
+            background-color: #cccccc;
+            padding: 80px;
+        }
+        #beat-box {
+            width: 200px;
+            height: 200px;
+            background-color: darkblue;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border-radius: 3px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>Let's make some beats baybeeeeeee</h1>
+        <br>
+        <br>
+        <div id="beat-box"></div>
+        <br>
+        <br>
+        <p>press <strong>J, K, L</strong> for lanes 1, 2, 3</p>
+        <p>4 beats will be played before the song begins. You'll hear the ticking.</p>
+        <button id="start-recording-btn">Start recording</button>
+        <br>
+        <hr>
+        <br>
+        <button id="stop-btn">STAHP!</button>
+        <button id="process-btn">Process Recording</button>
+        <hr>
+        <button id="playback-btn">Play back</button>
+    </div>
+</body>
+</html>
