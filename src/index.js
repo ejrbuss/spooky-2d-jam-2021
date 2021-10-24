@@ -2,10 +2,10 @@ import Phaser from "phaser";
 import { CONFIG } from "./config.js";
 import { GameScene } from "./scenes/game-scene.js";
 import { MainMenuScene } from "./scenes/main-menu-scene.js";
-import { OpeningScene } from "./scenes/opening-scene.js";
+import { OpeningScene } from "./scenes/opening-cutscene.js";
 
 // Change me to the current scene you are working on!
-const INITIAL_SCENE = GameScene;
+const INITIAL_SCENE = OpeningScene;
 
 const SCENES = [MainMenuScene, GameScene, OpeningScene];
 
