@@ -37,6 +37,7 @@ const YOU_LANE_SHIFT = 2.5 * CONFIG.widthPercentUnit;
 const PLAYER_SPEED = 0.1 * CONFIG.widthPercentUnit;
 const YOU_SPEED = 0.01 * CONFIG.widthPercentUnit;
 const SCROLL_SPEED = 0.01 * CONFIG.heightPercentUnit;
+const GHOSTIE_SPEED = 0.005 * CONFIG.widthPercentUnit;
 
 const TEMPO = 80; // in bpm
 const QUARTER_BEAT_MS = (60 * 1000) / (TEMPO * 4);
@@ -46,7 +47,7 @@ const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
 const NOTE_LATENCY_MS = QUARTER_BEAT_MS / 16;
 const SONG_LATENCY_MS = 4;
 
-const GHOST_COUNT = 1;
+const GHOSTIE_COUNT = 6;
 
 const COUNT_IN_QUARTER_BEAT_COUNT = Math.ceil(1000 / QUARTER_BEAT_MS);
 
@@ -76,7 +77,12 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
 		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
-		this.load.image(ASSETS.images.ghost, ASSETS.images.ghost);
+		this.load.image(ASSETS.images.ghostie1, ASSETS.images.ghostie1);
+		this.load.image(ASSETS.images.ghostie2, ASSETS.images.ghostie2);
+		this.load.image(ASSETS.images.ghostie3, ASSETS.images.ghostie3);
+		this.load.image(ASSETS.images.ghostie4, ASSETS.images.ghostie4);
+		this.load.image(ASSETS.images.ghostie5, ASSETS.images.ghostie5);
+		this.load.image(ASSETS.images.ghostie6, ASSETS.images.ghostie6);
 
 		this.load.audio(ASSETS.audio.gameSong, ASSETS.audio.gameSong);
 		this.load.audio(ASSETS.audio.hit, ASSETS.audio.hit);
@@ -223,10 +229,48 @@ export class GameScene extends Phaser.Scene {
 		});
 
 		// ghosties
-		for (let i = 0; i < GHOST_COUNT; i += 1) {}
-		this.ghost = this.add.sprite(H_CENTER, V_CENTER, ASSETS.images.ghost);
-		this.ghost.setDisplaySize(YOU_UNIT, YOU_UNIT);
-		this.ghost.setDepth(DEPTH_UI);
+		this.ghosties = [
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie1),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			},
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie2),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			},
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie3),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			},
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie4),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			},
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie5),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			},
+			{
+				sprite: this.add.sprite(this.getRandomInt(CONFIG.width), this.getRandomInt(CONFIG.height), ASSETS.images.ghostie6),
+				endX: this.getRandomInt(CONFIG.width),
+				endY: this.getRandomInt(CONFIG.height),
+				speed: Math.random() * GHOSTIE_SPEED
+			}
+		];
+		for (let i = 0; i < GHOSTIE_COUNT; i++) {
+			this.ghosties[i].sprite.setDisplaySize(YOU_UNIT, YOU_UNIT);
+			this.ghosties[i].sprite.setDepth(DEPTH_UI);
+		}
 
 		this.cameras.main.fadeIn(1000);
 	}
@@ -399,6 +443,27 @@ export class GameScene extends Phaser.Scene {
 		}
 	}
 
+	/**
+	 *
+	 * @param {Phaser.GameObjects.Sprite} toMove
+	 * @param {Phaser.GameObjects.Sprite} target
+	 * @param {number} speed
+	 * @returns
+	 */
+	moveToTargetY(toMove, targetY, maxDelta) {
+		if (toMove.y === targetY) {
+			toMove.setRotation(0);
+			return;
+		}
+		if (toMove.y > targetY) {
+			toMove.setY(Math.max(targetY, toMove.y - maxDelta));
+			toMove.setRotation(-Math.PI / 12);
+		} else {
+			toMove.setY(Math.min(targetY, toMove.y + maxDelta));
+			toMove.setRotation(+Math.PI / 12);
+		}
+	}
+
 	targetX(shift, lane) {
 		switch (lane) {
 			case LANE_LEFT:
@@ -442,6 +507,29 @@ export class GameScene extends Phaser.Scene {
 			this.targetX(YOU_LANE_SHIFT, this.youTargetLane),
 			delta * YOU_SPEED
 		);
+
+		// move ghosties
+		for (let i = 0; i < GHOSTIE_COUNT; i++) {
+			this.moveToTarget(
+				this.ghosties[i].sprite,
+				this.ghosties[i].endX,
+				delta * this.ghosties[i].speed
+			);
+			this.moveToTargetY(
+				this.ghosties[i].sprite,
+				this.ghosties[i].endY,
+				delta * this.ghosties[i].speed
+			);
+			if ((this.ghosties[i].sprite.x === this.ghosties[i].endX)
+				&& (this.ghosties[i].sprite.y === this.ghosties[i].endY)) {
+				this.ghosties[i].endX = this.getRandomInt(CONFIG.width),
+				this.ghosties[i].endY = this.getRandomInt(CONFIG.height)
+			}
+		}
+	}
+
+	getRandomInt(max) {
+		return Math.floor(Math.random() * max);
 	}
 
 	debugData(delta) {
