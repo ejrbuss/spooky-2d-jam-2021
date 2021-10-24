@@ -3,7 +3,7 @@ import { ASSETS } from "../assets.js";
 import { CONFIG } from "../config.js";
 import { OpeningScene } from "./opening-cutscene.js";
 
-const BLUR_SPEED = 0.05;
+const BLUR_SPEED = 0.01;
 
 export class MainMenuScene extends Phaser.Scene {
 	constructor() {
@@ -28,10 +28,16 @@ export class MainMenuScene extends Phaser.Scene {
 		);
 		this.background.setDisplaySize(CONFIG.width, CONFIG.height);
 
-		this.playButton = this.add.text(0, 0, "START", {
-			fontSize: 4 * CONFIG.widthPercentUnit,
-			fontFamily: "TAHOMA",
-		});
+		this.playButton = this.add.text(
+			CONFIG.width / 2 + 20 * CONFIG.widthPercentUnit,
+			CONFIG.height - 8 * CONFIG.widthPercentUnit,
+			"SPACE to start...",
+			{
+				fontSize: Math.floor(2 * CONFIG.widthPercentUnit),
+				fontFamily: "Courier",
+				fill: "rgb(255, 255, 255)",
+			}
+		);
 		this.playButton.setInteractive();
 		this.playButton.setPadding(
 			2 * CONFIG.widthPercentUnit,
@@ -39,8 +45,6 @@ export class MainMenuScene extends Phaser.Scene {
 			2 * CONFIG.widthPercentUnit,
 			2 * CONFIG.widthPercentUnit
 		);
-		this.playButton.setX(CONFIG.width / 2 - this.playButton.width / 2);
-		this.playButton.setY(CONFIG.height / 2 - this.playButton.height / 2);
 		this.playButton.setShadow(
 			0,
 			0,
@@ -48,12 +52,6 @@ export class MainMenuScene extends Phaser.Scene {
 			this.currentShadowBlur
 		);
 		// hover effect
-		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OVER, () => {
-			this.targetShadowBlur = 0.5 * CONFIG.widthPercentUnit;
-		});
-		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
-			this.targetShadowBlur = 0;
-		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
 			this.play();
 		});
@@ -76,6 +74,10 @@ export class MainMenuScene extends Phaser.Scene {
 	}
 
 	update(_time, delta) {
+		if (this.targetShadowBlur === this.currentShadowBlur) {
+			this.targetShadowBlur =
+				this.targetShadowBlur === 0 ? 0.5 * CONFIG.widthPercentUnit : 0;
+		}
 		if (this.targetShadowBlur !== this.currentShadowBlur) {
 			if (this.targetShadowBlur > this.currentShadowBlur) {
 				this.currentShadowBlur = Math.min(

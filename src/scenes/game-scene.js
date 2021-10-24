@@ -4,7 +4,8 @@ import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
 import { MainMenuScene } from "./main-menu-scene.js";
 
-const LATENCY_FIX_MS = 10;
+const TIMER_LATENCY_MS = 0;
+const NOTE_LATENCY_MS = 0;
 
 const LANE_LEFT = 0;
 const LANE_CENTER = 1;
@@ -201,8 +202,8 @@ export class GameScene extends Phaser.Scene {
 			});
 		}
 		this.gameSong = this.sound.add(ASSETS.audio.gameSong); //, { volume: 0.1 });
-		this.hitSound = this.sound.add(ASSETS.audio.hit);
-		this.missSound = this.sound.add(ASSETS.audio.miss);
+		this.hitSound = this.sound.add(ASSETS.audio.hit, { volume: 0.7 });
+		this.missSound = this.sound.add(ASSETS.audio.miss, { volume: 1 });
 
 		this.cameras.main.fadeIn(1000);
 		this.time.delayedCall(1000, () => {
@@ -215,7 +216,7 @@ export class GameScene extends Phaser.Scene {
 				});
 			});
 		});
-		this.time.delayedCall(1000 + LATENCY_FIX_MS, () => {
+		this.time.delayedCall(1000 + TIMER_LATENCY_MS, () => {
 			this.quarterBeatTimer = this.time.addEvent({
 				delay: QUARTER_BEAT_MS,
 				loop: true,
@@ -283,7 +284,7 @@ export class GameScene extends Phaser.Scene {
 		note.setDepth(DEPTH_NOTE);
 		this.add.tween({
 			targets: note,
-			duration: NOTE_TRAVEL_MS,
+			duration: NOTE_TRAVEL_MS + NOTE_LATENCY_MS,
 			displayWidth: { from: fromWidth, to: toWidth },
 			displayHeight: { from: fromHeight, to: toHeight },
 			x: { from: fromX, to: toX },

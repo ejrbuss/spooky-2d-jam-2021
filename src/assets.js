@@ -1,6 +1,6 @@
 // import your assets so webpack includes them
 import favicon from "./assets/images/favicon.png";
-import mainMenuBackground from "./assets/images/placeholder-background.png";
+import mainMenuBackground from "./assets/images/main-menu-background.png";
 
 import cutscene1 from "./assets/images/cutscene1.png";
 import cutscene2 from "./assets/images/cutscene2.png";

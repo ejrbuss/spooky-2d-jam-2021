@@ -48,7 +48,6 @@ export class OpeningScene extends Phaser.Scene {
 	}
 
 	runCutscenePart(cutsceneParts, id) {
-		const style = { font: "12px Courier", fill: "#fff" };
 		const fadeTime = 3000;
 
 		this.background = this.add.image(
@@ -67,7 +66,16 @@ export class OpeningScene extends Phaser.Scene {
 			duration: cutsceneParts[id].animationTime + fadeTime,
 		});
 
-		this.label = this.add.text(50, 50, "", style);
+		this.label = this.add.text(
+			3 * CONFIG.widthPercentUnit,
+			3 * CONFIG.widthPercentUnit,
+			"",
+			{
+				fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+				fontFamily: "Courier",
+				fill: "rgb(255, 255, 255)",
+			}
+		);
 
 		let cancelled = false;
 
