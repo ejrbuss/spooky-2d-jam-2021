@@ -333,6 +333,7 @@ export class GameScene extends Phaser.Scene {
 		});
 		this.updateScoreText();
 		if (this.health <= 0) {
+			this.gameSong.stop();
 			this.cameras.main.fadeOut(1000);
 			this.time.delayedCall(1000, () => {
 				// TODO replace with failure scene

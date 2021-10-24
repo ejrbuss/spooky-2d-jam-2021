@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { ASSETS } from "../assets.js";
 import { CONFIG } from "../config.js";
-import { GameScene } from "./game-scene.js";
+import { OpeningScene } from "./opening-cutscene.js";
 
 const BLUR_SPEED = 0.05;
 
@@ -54,8 +54,9 @@ export class MainMenuScene extends Phaser.Scene {
 			this.targetShadowBlur = 0;
 		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
-			this.scene.start(GameScene.name);
+			this.scene.start(OpeningScene.name);
 		});
+		this.cameras.main.fadeIn(1000);
 	}
 
 	update(_time, delta) {
