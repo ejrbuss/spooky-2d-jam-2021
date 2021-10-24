@@ -3,104 +3,108 @@ import { ASSETS } from "../assets.js";
 import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
 
+const LANE_LEFT = 0;
+const LANE_CENTER = 1;
+const LANE_RIGHT = 2;
+
+const DEPTH_PLAYER = 3;
+const DEPTH_NOTE = 2;
+const DEPTH_LANES = 1;
+const DEPTH_BACKGROUND = 0;
+
+const LANE_NAMES = ["left", "center", "right"];
+
 const FPS_AVE_FACTOR = 0.1;
+
+const BACKGROUND_WIDTH = 1920;
+const BACKGROUND_HEIGHT = 10800;
 
 const H_CENTER = CONFIG.width / 2;
 const V_CENTER = CONFIG.height / 2;
-const LANE_WIDTH = 5 * CONFIG.widthPercentUnit;
-const LANE_HEIGHT = CONFIG.height - 10 * CONFIG.heightPercentUnit;
-const PLAYER_Y = LANE_HEIGHT;
-const YOU_Y = CONFIG.height - LANE_HEIGHT;
+
+const PLAYER_UNIT = 10.0 * CONFIG.widthPercentUnit;
+const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
+const PLAYER_CENTER_X = H_CENTER - 1.0 * CONFIG.widthPercentUnit;
+const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
+
+const YOU_UNIT = 4.0 * CONFIG.widthPercentUnit;
+const YOU_Y = V_CENTER - 16 * CONFIG.heightPercentUnit;
+const YOU_CENTER_X = H_CENTER + 0.7 * CONFIG.widthPercentUnit;
+const YOU_LANE_SHIFT = 3 * CONFIG.widthPercentUnit;
 
 const PLAYER_SPEED = 0.05 * CONFIG.widthPercentUnit;
-const YOU_SPEED = 0.05 * CONFIG.widthPercentUnit;
+const YOU_SPEED = 0.025 * CONFIG.widthPercentUnit;
+const SCROLL_SPEED = 0.01 * CONFIG.heightPercentUnit;
 
 const TEMPO = 80; // in bpm
 const QUARTER_BEAT_MS = (60 * 1000) / (TEMPO * 4);
 const BEAT_MS = QUARTER_BEAT_MS * 4;
 const NOTE_TRAVEL_BEATS = 4;
 const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
-const NOTE_SPEED = (PLAYER_Y - YOU_Y) / NOTE_TRAVEL_MS;
 
 export class GameScene extends Phaser.Scene {
 	constructor() {
 		super(GameScene.name);
 		this.fps = 0;
-		this.scrollSpeed = 0.4;
 		this.quarterBeatCount = 0;
 	}
 
 	preload() {
 		this.load.image(ASSETS.images.gameBackground, ASSETS.images.gameBackground);
+		this.load.image(ASSETS.images.lanes, ASSETS.images.lanes);
+		this.load.image(ASSETS.images.lanesGlow, ASSETS.images.lanesGlow);
 		this.load.image(ASSETS.images.player, ASSETS.images.player);
+		this.load.image(ASSETS.images.you, ASSETS.images.you);
 	}
 
 	create() {
 		this.background = this.add.tileSprite(
-			CONFIG.width / 2,
-			CONFIG.height / 2,
-			CONFIG.width,
-			CONFIG.height,
+			H_CENTER,
+			V_CENTER,
+			BACKGROUND_WIDTH,
+			BACKGROUND_WIDTH / (CONFIG.width / CONFIG.height),
 			ASSETS.images.gameBackground
 		);
+		this.background.setDisplaySize(CONFIG.width, CONFIG.height);
+		this.background.setDepth(DEPTH_BACKGROUND);
 
-		this.redLane = this.add.rectangle(
-			CONFIG.width / 2 - 2 * LANE_WIDTH,
-			CONFIG.height / 2,
-			LANE_WIDTH,
-			LANE_HEIGHT,
-			Phaser.Display.Color.ValueToColor("rgb(230, 100, 100)").color
+		this.lanes = this.add.sprite(H_CENTER, V_CENTER, ASSETS.images.lanes);
+		this.lanes.setDisplaySize(CONFIG.width, CONFIG.height);
+		this.lanes.setDepth(DEPTH_LANES);
+
+		this.lanesGlow = this.add.sprite(
+			H_CENTER,
+			V_CENTER,
+			ASSETS.images.lanesGlow
 		);
-		this.redLane.setAlpha(0.7);
-		this.redLane.setName("redLane");
-
-		this.greenLane = this.add.rectangle(
-			CONFIG.width / 2,
-			CONFIG.height / 2,
-			LANE_WIDTH,
-			LANE_HEIGHT,
-			Phaser.Display.Color.ValueToColor("rgb(100, 230, 100)").color
-		);
-		this.greenLane.setAlpha(0.7);
-		this.greenLane.setName("greenLane");
-
-		this.blueLane = this.add.rectangle(
-			CONFIG.width / 2 + 2 * LANE_WIDTH,
-			CONFIG.height / 2,
-			LANE_WIDTH,
-			LANE_HEIGHT,
-			Phaser.Display.Color.ValueToColor("rgb(100, 100, 230)").color
-		);
-		this.blueLane.setAlpha(0.7);
-		this.blueLane.setName("blueLane");
-
-		this.lanes = [this.redLane, this.greenLane, this.blueLane];
+		this.lanesGlow.setDisplaySize(CONFIG.width, CONFIG.height);
+		this.lanesGlow.setAlpha(0.5);
+		this.lanesGlow.setDepth(DEPTH_LANES);
 
 		this.onBeatLaneTween = this.add.tween({
-			targets: this.lanes,
-			duration: QUARTER_BEAT_MS,
+			targets: this.lanesGlow,
+			duration: QUARTER_BEAT_MS * 2,
 			yoyo: true,
-			displayWidth: {
-				from: LANE_WIDTH,
-				to: LANE_WIDTH * 1.1,
+			alpha: {
+				from: 0.5,
+				to: 1,
 			},
+			ease: Phaser.Math.Easing.Sine.InOut,
 			paused: true,
 		});
 
-		this.player = this.add.sprite(
-			CONFIG.width / 2,
-			PLAYER_Y,
-			ASSETS.images.player
-		);
-		this.player.setDisplaySize(LANE_WIDTH, LANE_WIDTH);
+		this.player = this.add.sprite(H_CENTER, PLAYER_Y, ASSETS.images.player);
+		this.player.setDisplaySize(PLAYER_UNIT, PLAYER_UNIT);
+		this.player.setDepth(DEPTH_PLAYER);
 
-		this.you = this.add.sprite(CONFIG.width / 2, YOU_Y, ASSETS.images.you);
-		this.you.setDisplaySize(LANE_WIDTH, LANE_WIDTH);
+		this.you = this.add.sprite(H_CENTER, YOU_Y, ASSETS.images.you);
+		this.you.setDisplaySize(YOU_UNIT, YOU_UNIT);
+		this.you.setDepth(DEPTH_PLAYER);
 
 		/** @type {Phaser.GameObjects.Rectangle} */
-		this.playerTargetLane = this.greenLane;
+		this.playerTargetLane = LANE_CENTER;
 		/** @type {Phaser.GameObjects.Rectangle} */
-		this.youTargetLane = this.greenLane;
+		this.youTargetLane = LANE_CENTER;
 
 		this.input.keyboard.on(
 			Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
@@ -140,30 +144,20 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	pressLeft() {
-		if (this.playerTargetLane === this.redLane) {
-			return;
+		if (this.playerTargetLane === LANE_CENTER) {
+			return (this.playerTargetLane = LANE_LEFT);
 		}
-		if (this.playerTargetLane === this.greenLane) {
-			this.playerTargetLane = this.redLane;
-			return;
-		}
-		if (this.playerTargetLane === this.blueLane) {
-			this.playerTargetLane = this.greenLane;
-			return;
+		if (this.playerTargetLane === LANE_RIGHT) {
+			return (this.playerTargetLane = LANE_CENTER);
 		}
 	}
 
 	pressRight() {
-		if (this.playerTargetLane === this.redLane) {
-			this.playerTargetLane = this.greenLane;
-			return;
+		if (this.playerTargetLane === LANE_LEFT) {
+			return (this.playerTargetLane = LANE_CENTER);
 		}
-		if (this.playerTargetLane === this.greenLane) {
-			this.playerTargetLane = this.blueLane;
-			return;
-		}
-		if (this.playerTargetLane === this.blueLane) {
-			return;
+		if (this.playerTargetLane === LANE_CENTER) {
+			return (this.playerTargetLane = LANE_RIGHT);
 		}
 	}
 
@@ -188,29 +182,51 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	emitNote() {
+		const lane = this.youTargetLane;
+		const fromRadius = YOU_UNIT / 8;
+		const toRadius = PLAYER_UNIT / 4;
+		const fromX = this.targetX(YOU_CENTER_X, YOU_LANE_SHIFT * 0.8, lane);
+		const toX = this.targetX(PLAYER_CENTER_X, PLAYER_LANE_SHIFT * 0.9, lane);
+		const fromY = YOU_Y;
+		const toY = PLAYER_Y;
 		const note = this.add.circle(
-			this.youTargetLane.x,
-			YOU_Y,
-			LANE_WIDTH / 3,
+			fromX,
+			fromY,
+			fromRadius,
 			Phaser.Display.Color.ValueToColor("rgb(255, 255, 255)").color
 		);
-		this.notes.push(note);
+		note.setDepth(DEPTH_NOTE);
+		this.add.tween({
+			targets: note,
+			duration: NOTE_TRAVEL_MS,
+			radius: { from: fromRadius, to: toRadius },
+			x: { from: fromX, to: toX },
+			y: { from: fromY, to: toY },
+			ease: Phaser.Math.Easing.Quadratic.In,
+			onComplete: () => {
+				if (this.playerTargetLane === lane) {
+					return this.noteSucceed(note);
+				} else {
+					return this.noteFail(note);
+				}
+			},
+		});
 	}
 
 	findNextNote() {
 		const length = BEATMAP.length;
 		for (
 			let count = this.quarterBeatCount + NOTE_TRAVEL_BEATS * 4 + 1;
-			count < length;
+			true; // count < length;
 			count += 1
 		) {
-			const note = BEATMAP[count];
-			if (note !== null) {
+			const lane = BEATMAP[count % length];
+			if (lane !== null) {
 				// nextNoteCount is the quarter beat to emit the note on
 				// so we subtract the number of quarter beats it takes for the
 				// note to travel
 				this.nextNoteCount = count - NOTE_TRAVEL_BEATS * 4;
-				this.youTargetLane = this.lanes[note];
+				this.youTargetLane = lane;
 				return;
 			}
 		}
@@ -261,51 +277,49 @@ export class GameScene extends Phaser.Scene {
 	 * @param {number} speed
 	 * @returns
 	 */
-	moveToTarget(toMove, target, maxDelta) {
-		if (toMove.x === target.x) {
+	moveToTarget(toMove, targetX, maxDelta) {
+		if (toMove.x === targetX) {
 			return;
 		}
-		if (toMove.x > target.x) {
-			toMove.setX(Math.max(target.x, toMove.x - maxDelta));
+		if (toMove.x > targetX) {
+			toMove.setX(Math.max(targetX, toMove.x - maxDelta));
 		} else {
-			toMove.setX(Math.min(target.x, toMove.x + maxDelta));
+			toMove.setX(Math.min(targetX, toMove.x + maxDelta));
+		}
+	}
+
+	targetX(center, shift, lane) {
+		switch (lane) {
+			case 0:
+				return center - shift;
+			case 1:
+				return center;
+			case 2:
+				return center + shift;
 		}
 	}
 
 	update(time, delta) {
-		// scroll screen
-		// this.cameras.default.setScroll(0, this.cameras.default.scrollY + delta);
-
 		if (CONFIG.debug && time) {
 			this.debug.setText(JSON.stringify(this.debugData(delta), null, 2));
-			this.debug.setX(this.debug.width / 2);
-			this.debug.setY(this.debug.height / 2);
 		}
 
 		// scroll background
 		this.background.setTilePosition(
 			0,
-			this.background.tilePositionY - delta * this.scrollSpeed
+			this.background.tilePositionY - delta * SCROLL_SPEED
 		);
 
-		this.moveToTarget(this.player, this.playerTargetLane, delta * PLAYER_SPEED);
-		this.moveToTarget(this.you, this.youTargetLane, delta * YOU_SPEED);
-
-		this.notes.forEach((note) => {
-			note.setY(note.y + delta * NOTE_SPEED);
-		});
-		if (this.notes.length > 0) {
-			const nextNote = this.notes[0];
-			// Note has reached the end of the lane
-			if (nextNote.y >= PLAYER_Y) {
-				this.notes.shift();
-				if (nextNote.x === this.playerTargetLane.x) {
-					this.noteSucceed(nextNote);
-				} else {
-					this.noteFail(nextNote);
-				}
-			}
-		}
+		this.moveToTarget(
+			this.player,
+			this.targetX(PLAYER_CENTER_X, PLAYER_LANE_SHIFT, this.playerTargetLane),
+			delta * PLAYER_SPEED
+		);
+		this.moveToTarget(
+			this.you,
+			this.targetX(YOU_CENTER_X, YOU_LANE_SHIFT, this.youTargetLane),
+			delta * YOU_SPEED
+		);
 	}
 
 	debugData(delta) {
@@ -315,7 +329,8 @@ export class GameScene extends Phaser.Scene {
 		return {
 			scene: this.scene.key,
 			fps: Math.floor(this.fps),
-			target: this.playerTargetLane.name,
+			playerTarget: LANE_NAMES[this.playerTargetLane],
+			youTarget: LANE_NAMES[this.youTargetLane],
 		};
 	}
 }
