@@ -3,6 +3,7 @@ import { ASSETS } from "../assets.js";
 import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
 import { MainMenuScene } from "./main-menu-scene.js";
+
 const LANE_LEFT = 0;
 const LANE_CENTER = 1;
 const LANE_RIGHT = 2;
@@ -34,7 +35,7 @@ const YOU_Y = V_CENTER - 16 * CONFIG.heightPercentUnit;
 const YOU_LANE_SHIFT = 3 * CONFIG.widthPercentUnit;
 
 const PLAYER_SPEED = 0.1 * CONFIG.widthPercentUnit;
-const YOU_SPEED = 0.03 * CONFIG.widthPercentUnit;
+const YOU_SPEED = 0.01 * CONFIG.widthPercentUnit;
 const SCROLL_SPEED = 0.01 * CONFIG.heightPercentUnit;
 
 const TEMPO = 80; // in bpm
