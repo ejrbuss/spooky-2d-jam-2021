@@ -3,6 +3,7 @@ import { ASSETS } from "../assets.js";
 import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
 import { MainMenuScene } from "./main-menu-scene.js";
+import { VictoryScene } from "./victory-scene.js";
 
 const LANE_LEFT = 0;
 const LANE_CENTER = 1;
@@ -213,7 +214,13 @@ export class GameScene extends Phaser.Scene {
 			this.cameras.main.fadeOut(1000);
 			this.time.delayedCall(1000, () => {
 				// TODO replace with outro scene
-				this.scene.start(MainMenuScene.name);
+				let highscores = JSON.parse(localStorage.getItem("highscores"));
+				if (!highscores) highscores = [];
+				highscores.push(parseInt(this.score));
+				highscores.sort();
+				highscores.slice(0, 5);
+				localStorage.setItem("highscores", JSON.stringify(highscores));
+				this.scene.start(VictoryScene.name);
 			});
 		});
 		this.quarterBeatTimer = this.time.addEvent({

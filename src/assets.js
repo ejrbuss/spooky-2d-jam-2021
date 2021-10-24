@@ -6,6 +6,8 @@ import cutscene1 from "./assets/images/cutscene1.png";
 import cutscene2 from "./assets/images/cutscene2.png";
 import cutscene3 from "./assets/images/cutscene3.png";
 
+import victory from "./assets/images/victory.png";
+
 import log1 from "./assets/audio/log1.mp3";
 import log2 from "./assets/audio/log2.mp3";
 import log3 from "./assets/audio/log3.mp3";
@@ -49,6 +51,7 @@ export const ASSETS = {
 		opening1: cutscene1,
 		opening2: cutscene2,
 		opening3: cutscene3,
+		victory: victory,
 		notes: [note1, note2, note3],
 		noteSuccess,
 		noteFail,
