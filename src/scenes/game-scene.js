@@ -49,11 +49,6 @@ const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
 export class GameScene extends Phaser.Scene {
 	constructor() {
 		super(GameScene.name);
-		this.fps = 0;
-		this.quarterBeatCount = 0;
-		this.score = 0;
-		this.combo = 0;
-		this.health = 100;
 	}
 
 	preload() {
@@ -82,6 +77,12 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.fps = 0;
+		this.quarterBeatCount = 0;
+		this.score = 0;
+		this.combo = 0;
+		this.health = 100;
+
 		this.background = this.add.tileSprite(
 			H_CENTER,
 			V_CENTER,
