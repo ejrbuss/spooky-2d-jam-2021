@@ -3,6 +3,8 @@ import { ASSETS } from "../assets.js";
 import { CONFIG } from "../config.js";
 import { GameScene } from "./game-scene.js";
 
+const BLUR_SPEED = 0.05;
+
 export class MainMenuScene extends Phaser.Scene {
 	constructor() {
 		super(MainMenuScene.name);
@@ -13,6 +15,8 @@ export class MainMenuScene extends Phaser.Scene {
 			ASSETS.images.mainMenuBackground,
 			ASSETS.images.mainMenuBackground
 		);
+		this.targetShadowBlur = 0;
+		this.currentShadowBlur = 0;
 	}
 
 	create() {
@@ -23,26 +27,51 @@ export class MainMenuScene extends Phaser.Scene {
 		);
 		this.background.setDisplaySize(CONFIG.width, CONFIG.height);
 
-		this.playButton = this.add.text(0, 0, "PLAY", {
-			fontSize: 72,
-			fontFamily: "Arial",
+		this.playButton = this.add.text(0, 0, "START", {
+			fontSize: 4 * CONFIG.widthPercentUnit,
+			fontFamily: "TAHOMA",
 		});
-		// Center relative to button size
-		const noHoverColor = "rgb(200, 50, 50)";
-		const hoverColor = "rgb(255, 50, 50)";
+		this.playButton.setInteractive();
+		this.playButton.setPadding(
+			2 * CONFIG.widthPercentUnit,
+			2 * CONFIG.widthPercentUnit,
+			2 * CONFIG.widthPercentUnit,
+			2 * CONFIG.widthPercentUnit
+		);
 		this.playButton.setX(CONFIG.width / 2 - this.playButton.width / 2);
 		this.playButton.setY(CONFIG.height / 2 - this.playButton.height / 2);
-		this.playButton.setBackgroundColor(noHoverColor);
-		this.playButton.setInteractive();
+		this.playButton.setShadow(
+			0,
+			0,
+			"rgb(255, 255, 255)",
+			this.currentShadowBlur
+		);
 		// hover effect
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OVER, () => {
-			this.playButton.setBackgroundColor(hoverColor);
+			this.targetShadowBlur = 0.5 * CONFIG.widthPercentUnit;
 		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
-			this.playButton.setBackgroundColor(noHoverColor);
+			this.targetShadowBlur = 0;
 		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
 			this.scene.start(GameScene.name);
 		});
+	}
+
+	update(_time, delta) {
+		if (this.targetShadowBlur !== this.currentShadowBlur) {
+			if (this.targetShadowBlur > this.currentShadowBlur) {
+				this.currentShadowBlur = Math.min(
+					this.targetShadowBlur,
+					this.currentShadowBlur + BLUR_SPEED * delta
+				);
+			} else {
+				this.currentShadowBlur = Math.max(
+					this.targetShadowBlur,
+					this.currentShadowBlur - BLUR_SPEED * delta
+				);
+			}
+			this.playButton.setShadowBlur(this.currentShadowBlur);
+		}
 	}
 }
