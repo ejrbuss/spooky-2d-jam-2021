@@ -470,5 +470,5 @@ export const BEATMAP = [
 	null,
 	1,
 	null,
-	1
+	1,
 ];
