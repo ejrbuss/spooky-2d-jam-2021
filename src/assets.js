@@ -57,12 +57,7 @@ export const ASSETS = {
 		notes: [note1, note2, note3],
 		noteSuccess,
 		noteFail,
-		ghostie1,
-		ghostie2,
-		ghostie3,
-		ghostie4,
-		ghostie5,
-		ghostie6,
+		ghosties: [ghostie1, ghostie2, ghostie3, ghostie4, ghostie5, ghostie6],
 	},
 	audio: {
 		log1: log1,
