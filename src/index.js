@@ -4,7 +4,7 @@ import { GameScene } from "./scenes/game-scene.js";
 import { MainMenuScene } from "./scenes/main-menu-scene.js";
 
 // Change me to the current scene you are working on!
-const INITIAL_SCENE = GameScene;
+const INITIAL_SCENE = MainMenuScene;
 
 const SCENES = [MainMenuScene, GameScene];
 
