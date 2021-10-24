@@ -2,6 +2,9 @@ import Phaser from "phaser";
 import { ASSETS } from "../assets.js";
 import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
+import { MainMenuScene } from "./main-menu-scene.js";
+
+const LATENCY_FIX_MS = -100;
 
 const LANE_LEFT = 0;
 const LANE_CENTER = 1;
@@ -140,17 +143,6 @@ export class GameScene extends Phaser.Scene {
 			}
 		);
 
-		this.quarterBeatTimer = this.time.addEvent({
-			delay: QUARTER_BEAT_MS,
-			loop: true,
-			callback: () => this.onQuarterBeat(),
-		});
-		this.sound.play(ASSETS.audio.gameSong, {
-			onComplete: () => {
-				// TODO end of game
-			},
-		});
-
 		this.notes = [];
 		this.findNextNote();
 
@@ -186,6 +178,26 @@ export class GameScene extends Phaser.Scene {
 				fontFamily: "monospace",
 			});
 		}
+
+		this.cameras.main.fadeIn(1000);
+		this.time.delayedCall(1000, () => {
+			this.gameSong = this.sound.add(ASSETS.audio.gameSong, { volume: 0.1 });
+			this.gameSong.play();
+			this.gameSong.once(Phaser.Sound.Events.COMPLETE, () => {
+				this.cameras.main.fadeOut(1000);
+				this.time.delayedCall(1000, () => {
+					// TODO replace with outro scene
+					this.scene.start(MainMenuScene.name);
+				});
+			});
+		});
+		this.time.delayedCall(1000 + LATENCY_FIX_MS, () => {
+			this.quarterBeatTimer = this.time.addEvent({
+				delay: QUARTER_BEAT_MS,
+				loop: true,
+				callback: () => this.onQuarterBeat(),
+			});
+		});
 	}
 
 	pressLeft() {
@@ -262,11 +274,11 @@ export class GameScene extends Phaser.Scene {
 		const length = BEATMAP.length;
 		for (
 			let count = this.quarterBeatCount + NOTE_TRAVEL_BEATS * 4 + 1;
-			true; // count < length;
+			count < length;
 			count += 1
 		) {
-			const lane = BEATMAP[count % length]; //
-			if (lane !== null) {
+			const lane = BEATMAP[count];
+			if (typeof lane === "number") {
 				// nextNoteCount is the quarter beat to emit the note on
 				// so we subtract the number of quarter beats it takes for the
 				// note to travel
@@ -321,7 +333,11 @@ export class GameScene extends Phaser.Scene {
 		});
 		this.updateScoreText();
 		if (this.health <= 0) {
-			// TODO game over
+			this.cameras.main.fadeOut(1000);
+			this.time.delayedCall(1000, () => {
+				// TODO replace with failure scene
+				this.scene.start(MainMenuScene.name);
+			});
 		}
 	}
 
