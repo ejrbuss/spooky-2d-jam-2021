@@ -55,6 +55,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(ASSETS.images.lanesGlow, ASSETS.images.lanesGlow);
 		this.load.image(ASSETS.images.player, ASSETS.images.player);
 		this.load.image(ASSETS.images.you, ASSETS.images.you);
+
+		this.load.audio(ASSETS.audio.gameSong, ASSETS.audio.gameSong);
 	}
 
 	create() {
@@ -131,9 +133,23 @@ export class GameScene extends Phaser.Scene {
 			loop: true,
 			callback: () => this.onQuarterBeat(),
 		});
+		this.sound.play(ASSETS.audio.gameSong, {
+			loop: true,
+		});
 
 		this.notes = [];
 		this.findNextNote();
+
+		this.score = this.add.text(
+			H_CENTER,
+			3.0 * CONFIG.widthPercentUnit,
+			"Score",
+			{
+				fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+				fontFamily: "Tahoma",
+			}
+		);
+		this.score.setDisplayOrigin(0, 0);
 
 		if (CONFIG.debug) {
 			this.debug = this.add.text(0, 0, "debug", {
@@ -220,7 +236,7 @@ export class GameScene extends Phaser.Scene {
 			true; // count < length;
 			count += 1
 		) {
-			const lane = BEATMAP[count % length];
+			const lane = BEATMAP[count % length]; //
 			if (lane !== null) {
 				// nextNoteCount is the quarter beat to emit the note on
 				// so we subtract the number of quarter beats it takes for the
@@ -310,11 +326,14 @@ export class GameScene extends Phaser.Scene {
 			this.background.tilePositionY - delta * SCROLL_SPEED
 		);
 
+		// move player
 		this.moveToTarget(
 			this.player,
 			this.targetX(PLAYER_CENTER_X, PLAYER_LANE_SHIFT, this.playerTargetLane),
 			delta * PLAYER_SPEED
 		);
+
+		// move you
 		this.moveToTarget(
 			this.you,
 			this.targetX(YOU_CENTER_X, YOU_LANE_SHIFT, this.youTargetLane),

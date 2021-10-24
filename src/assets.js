@@ -5,6 +5,7 @@ import placeholderPlayer from "./assets/images/placeholder-player.png";
 import gameBackground from "./assets/images/game-background.png";
 import lanes from "./assets/images/lanes.png";
 import lanesGlow from "./assets/images/lanes-glow.png";
+import gameSong from "./assets/audio/game-song.mp3";
 
 // map assets to path for autocomplete
 export const ASSETS = {
@@ -16,5 +17,7 @@ export const ASSETS = {
 		player: placeholderPlayer,
 		you: placeholderPlayer,
 	},
-	audio: {},
+	audio: {
+		gameSong,
+	},
 };
