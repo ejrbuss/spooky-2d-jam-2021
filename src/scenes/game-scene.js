@@ -26,7 +26,7 @@ const BACKGROUND_HEIGHT = 10800;
 const H_CENTER = CONFIG.width / 2;
 const V_CENTER = CONFIG.height / 2;
 
-const NOTE_HEIGHT_RATIO = 0.60;
+const NOTE_HEIGHT_RATIO = 0.6;
 
 const PLAYER_UNIT = 10.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
@@ -63,9 +63,18 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(ASSETS.images.lanesGlow, ASSETS.images.lanesGlow);
 		this.load.image(ASSETS.images.player, ASSETS.images.player);
 		this.load.image(ASSETS.images.you, ASSETS.images.you);
-		this.load.image(ASSETS.images.note1, ASSETS.images.note1);
-		this.load.image(ASSETS.images.note2, ASSETS.images.note2);
-		this.load.image(ASSETS.images.note3, ASSETS.images.note3);
+		this.load.image(
+			ASSETS.images.notes[LANE_LEFT],
+			ASSETS.images.notes[LANE_LEFT]
+		);
+		this.load.image(
+			ASSETS.images.notes[LANE_CENTER],
+			ASSETS.images.notes[LANE_CENTER]
+		);
+		this.load.image(
+			ASSETS.images.notes[LANE_RIGHT],
+			ASSETS.images.notes[LANE_RIGHT]
+		);
 		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
 		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
 
@@ -247,19 +256,15 @@ export class GameScene extends Phaser.Scene {
 
 	emitNote() {
 		const lane = this.youTargetLane;
-		const fromWidth = YOU_UNIT/8;
+		const fromWidth = YOU_UNIT / 8;
 		const toWidth = PLAYER_UNIT;
-		const fromHeight = fromWidth*NOTE_HEIGHT_RATIO;
-		const toHeight = toWidth*NOTE_HEIGHT_RATIO;
+		const fromHeight = fromWidth * NOTE_HEIGHT_RATIO;
+		const toHeight = toWidth * NOTE_HEIGHT_RATIO;
 		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
 		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
 		const fromY = YOU_Y;
 		const toY = PLAYER_Y;
-		const note = this.add.sprite(
-			fromX,
-			fromY,
-			this.getNoteName(lane),
-		);
+		const note = this.add.sprite(fromX, fromY, ASSETS.images.notes[lane]);
 		note.setDisplaySize(fromWidth, fromHeight);
 		note.setDepth(DEPTH_NOTE);
 		this.add.tween({
@@ -309,7 +314,7 @@ export class GameScene extends Phaser.Scene {
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;
 		this.score += 100 * this.combo;
-		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this 
+		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this
 		// tween thing it disappears immediately. so i guess i'll just leave it in idk
 		note.setTexture(ASSETS.images.noteSuccess);
 		this.add.tween({
@@ -333,7 +338,7 @@ export class GameScene extends Phaser.Scene {
 	noteFail(note) {
 		this.health -= 15;
 		this.combo = 0;
-		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this 
+		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this
 		// tween thing it disappears immediately. so i guess i'll just leave it in idk
 		note.setTexture(ASSETS.images.noteFail);
 		this.add.tween({
@@ -355,18 +360,6 @@ export class GameScene extends Phaser.Scene {
 				// TODO replace with failure scene
 				this.scene.start(MainMenuScene.name);
 			});
-		}
-	}
-
-	getNoteName(lane) {
-		console.log(lane);
-		switch (lane) {
-			case LANE_LEFT:
-				return ASSETS.images.note1;
-			case LANE_CENTER:
-				return ASSETS.images.note2;
-			case LANE_RIGHT:
-				return ASSETS.images.note3;
 		}
 	}
 
