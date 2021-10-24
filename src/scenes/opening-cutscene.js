@@ -71,7 +71,7 @@ export class OpeningScene extends Phaser.Scene {
 			3 * CONFIG.widthPercentUnit,
 			"",
 			{
-				fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+				fontSize: Math.floor(1 * CONFIG.widthPercentUnit),
 				fontFamily: "Courier",
 				fill: "rgb(255, 255, 255)",
 			}
