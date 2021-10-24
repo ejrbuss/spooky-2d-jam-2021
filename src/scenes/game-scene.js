@@ -93,6 +93,7 @@ export class GameScene extends Phaser.Scene {
 		this.score = 0;
 		this.combo = 0;
 		this.health = 100;
+		this.notesHit = 0;
 		this.nextNoteSound = null;
 
 		this.background = this.add.tileSprite(
@@ -248,8 +249,8 @@ export class GameScene extends Phaser.Scene {
 	victory() {
 		let highscores = JSON.parse(localStorage.getItem("highscores"));
 		if (!highscores) highscores = [];
-		highscores.push(this.score);
-		highscores.sort((a, b) => parseInt(b) - parseInt(a));
+		highscores.push({score: this.score, notes: this.notesHit});
+		highscores.sort((a, b) => parseInt(b.score) - parseInt(a.score));
 		highscores.slice(0, 5);
 		localStorage.setItem("highscores", JSON.stringify(highscores));
 		this.scene.start(VictoryScene.name);
@@ -356,6 +357,7 @@ export class GameScene extends Phaser.Scene {
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
 	noteHit(note) {
+		this.notesHit++;
 		this.nextNoteSound = this.hitSound;
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;

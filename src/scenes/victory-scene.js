@@ -38,7 +38,7 @@ export class VictoryScene extends Phaser.Scene {
 			const score = scores[scoreId];
 			highScoreString += `\n${(
 				parseInt(scoreId) + 1
-			).toString()}:\t${score.toString()}`;
+			).toString()}:\t${score.score.toString()}\t(${score.notes.toString()} / 283)${score.notes === 283 ? " *PERFECT*" : ""}`;
 		}
 		this.typewriteText(highScoreString);
 		this.input.keyboard.on(
@@ -55,8 +55,8 @@ export class VictoryScene extends Phaser.Scene {
 		let scores = JSON.parse(localStorage.getItem("highscores"));
 		if (!scores) scores = [];
 		let result = [];
-		for (let score of scores) {
-			result.push(parseInt(score));
+		for (let s of scores) {
+			result.push({score: parseInt(s.score), notes: parseInt(s.notes)});
 		}
 		return result;
 	}
