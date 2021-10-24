@@ -23,6 +23,8 @@ const BACKGROUND_HEIGHT = 10800;
 const H_CENTER = CONFIG.width / 2;
 const V_CENTER = CONFIG.height / 2;
 
+const NOTE_HEIGHT_RATIO = 0.60;
+
 const PLAYER_UNIT = 10.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
 const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
@@ -58,6 +60,11 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(ASSETS.images.lanesGlow, ASSETS.images.lanesGlow);
 		this.load.image(ASSETS.images.player, ASSETS.images.player);
 		this.load.image(ASSETS.images.you, ASSETS.images.you);
+		this.load.image(ASSETS.images.note1, ASSETS.images.note1);
+		this.load.image(ASSETS.images.note2, ASSETS.images.note2);
+		this.load.image(ASSETS.images.note3, ASSETS.images.note3);
+		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
+		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
 
 		this.load.audio(ASSETS.audio.gameSong, ASSETS.audio.gameSong);
 	}
@@ -228,23 +235,26 @@ export class GameScene extends Phaser.Scene {
 
 	emitNote() {
 		const lane = this.youTargetLane;
-		const fromRadius = YOU_UNIT / 8;
-		const toRadius = PLAYER_UNIT / 4;
+		const fromWidth = YOU_UNIT/8;
+		const toWidth = PLAYER_UNIT;
+		const fromHeight = fromWidth*NOTE_HEIGHT_RATIO;
+		const toHeight = toWidth*NOTE_HEIGHT_RATIO;
 		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
 		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
 		const fromY = YOU_Y;
 		const toY = PLAYER_Y;
-		const note = this.add.circle(
+		const note = this.add.sprite(
 			fromX,
 			fromY,
-			fromRadius,
-			Phaser.Display.Color.ValueToColor("rgb(255, 255, 255)").color
+			this.getNoteName(lane),
 		);
+		note.setDisplaySize(fromWidth, fromHeight);
 		note.setDepth(DEPTH_NOTE);
 		this.add.tween({
 			targets: note,
 			duration: NOTE_TRAVEL_MS,
-			radius: { from: fromRadius, to: toRadius },
+			displayWidth: { from: fromWidth, to: toWidth },
+			displayHeight: { from: fromHeight, to: toHeight },
 			x: { from: fromX, to: toX },
 			y: { from: fromY, to: toY },
 			ease: Phaser.Math.Easing.Circular.In,
@@ -287,6 +297,9 @@ export class GameScene extends Phaser.Scene {
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;
 		this.score += 100 * this.combo;
+		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this 
+		// tween thing it disappears immediately. so i guess i'll just leave it in idk
+		note.setTexture(ASSETS.images.noteSuccess);
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
@@ -308,6 +321,9 @@ export class GameScene extends Phaser.Scene {
 	noteFail(note) {
 		this.health -= 15;
 		this.combo = 0;
+		// i want to change the texture and have it sit there for a second, but if i remove the fillColour from this 
+		// tween thing it disappears immediately. so i guess i'll just leave it in idk
+		note.setTexture(ASSETS.images.noteFail);
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
@@ -322,6 +338,18 @@ export class GameScene extends Phaser.Scene {
 		this.updateScoreText();
 		if (this.health <= 0) {
 			// TODO game over
+		}
+	}
+
+	getNoteName(lane) {
+		console.log(lane);
+		switch (lane) {
+			case LANE_LEFT:
+				return ASSETS.images.note1;
+			case LANE_CENTER:
+				return ASSETS.images.note2;
+			case LANE_RIGHT:
+				return ASSETS.images.note3;
 		}
 	}
 
@@ -345,12 +373,12 @@ export class GameScene extends Phaser.Scene {
 
 	targetX(shift, lane) {
 		switch (lane) {
-			case 0:
-				return H_CENTER - shift;
-			case 1:
+			case LANE_LEFT:
+				return (H_CENTER - shift) * 1.01; //add slight 1% compensation to make up for uneven lanes
+			case LANE_CENTER:
 				return H_CENTER;
-			case 2:
-				return H_CENTER + shift;
+			case LANE_RIGHT:
+				return (H_CENTER + shift) * 0.995;
 		}
 	}
 

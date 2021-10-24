@@ -17,6 +17,13 @@ import gameBackground from "./assets/images/game-background.png";
 import deathVision from "./assets/images/death-vision.png";
 import lanes from "./assets/images/lanes.png";
 import lanesGlow from "./assets/images/lanes-glow.png";
+
+import note1 from "./assets/images/note1.png";
+import note2 from "./assets/images/note2.png";
+import note3 from "./assets/images/note3.png";
+import noteSuccess from "./assets/images/note-success.png";
+import noteFail from "./assets/images/note-fail.png";
+
 import gameSong from "./assets/audio/game-song.mp3";
 
 // map assets to path for autocomplete
@@ -32,6 +39,11 @@ export const ASSETS = {
 		opening2: cutscene2,
 		opening3: cutscene3,
 		you: placeholderPlayer,
+		note1,
+		note2,
+		note3,
+		noteSuccess,
+		noteFail,
 	},
 	audio: {
 		log1: log1,
