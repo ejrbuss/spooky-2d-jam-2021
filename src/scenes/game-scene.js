@@ -341,7 +341,7 @@ export class GameScene extends Phaser.Scene {
 			targets: note,
 			duration: QUARTER_BEAT_MS,
 			alpha: { from: 1, to: 0 },
-			scale: { from: 1, to: 2 },
+			scale: { from: 1, to: 3 },
 			onComplete: () => {
 				note.destroy();
 			},
@@ -363,7 +363,7 @@ export class GameScene extends Phaser.Scene {
 			duration: QUARTER_BEAT_MS,
 			duration: QUARTER_BEAT_MS,
 			alpha: { from: 1, to: 0 },
-			scale: { from: 1, to: 2 },
+			scale: { from: 1, to: 3 },
 			onComplete: () => {
 				note.destroy();
 			},
