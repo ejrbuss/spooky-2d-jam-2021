@@ -8,18 +8,30 @@ import log1 from "./assets/audio/log1.mp3";
 import log2 from "./assets/audio/log2.mp3";
 import log3 from "./assets/audio/log3.mp3";
 
+import gameBackground from "./assets/images/game-background.png";
+import deathVision from "./assets/images/death-vision.png";
+import lanes from "./assets/images/lanes.png";
+import lanesGlow from "./assets/images/lanes-glow.png";
+import gameSong from "./assets/audio/game-song.mp3";
+
 // map assets to path for autocomplete
 export const ASSETS = {
 	images: {
 		mainMenuBackground: placeholderBackground,
+		gameBackground,
+		deathVision,
+		lanes,
+		lanesGlow,
 		player: placeholderPlayer,
 		opening1: test1,
 		opening2: test2,
 		opening3: test3,
+		you: placeholderPlayer,
 	},
 	audio: {
 		log1: log1,
 		log2: log2,
-		log3: log3
+		log3: log3,
+		gameSong,
 	},
 };
