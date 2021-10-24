@@ -7,6 +7,7 @@ const LANE_LEFT = 0;
 const LANE_CENTER = 1;
 const LANE_RIGHT = 2;
 
+const DEPTH_UI = 4;
 const DEPTH_PLAYER = 3;
 const DEPTH_NOTE = 2;
 const DEPTH_LANES = 1;
@@ -24,22 +25,20 @@ const V_CENTER = CONFIG.height / 2;
 
 const PLAYER_UNIT = 10.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
-const PLAYER_CENTER_X = H_CENTER - 1.0 * CONFIG.widthPercentUnit;
 const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
 
 const YOU_UNIT = 4.0 * CONFIG.widthPercentUnit;
 const YOU_Y = V_CENTER - 16 * CONFIG.heightPercentUnit;
-const YOU_CENTER_X = H_CENTER + 0.7 * CONFIG.widthPercentUnit;
 const YOU_LANE_SHIFT = 3 * CONFIG.widthPercentUnit;
 
-const PLAYER_SPEED = 0.05 * CONFIG.widthPercentUnit;
-const YOU_SPEED = 0.025 * CONFIG.widthPercentUnit;
+const PLAYER_SPEED = 0.1 * CONFIG.widthPercentUnit;
+const YOU_SPEED = 0.03 * CONFIG.widthPercentUnit;
 const SCROLL_SPEED = 0.01 * CONFIG.heightPercentUnit;
 
 const TEMPO = 80; // in bpm
 const QUARTER_BEAT_MS = (60 * 1000) / (TEMPO * 4);
 const BEAT_MS = QUARTER_BEAT_MS * 4;
-const NOTE_TRAVEL_BEATS = 4;
+const NOTE_TRAVEL_BEATS = 2;
 const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
 
 export class GameScene extends Phaser.Scene {
@@ -47,10 +46,14 @@ export class GameScene extends Phaser.Scene {
 		super(GameScene.name);
 		this.fps = 0;
 		this.quarterBeatCount = 0;
+		this.score = 0;
+		this.combo = 0;
+		this.health = 100;
 	}
 
 	preload() {
 		this.load.image(ASSETS.images.gameBackground, ASSETS.images.gameBackground);
+		this.load.image(ASSETS.images.deathVision, ASSETS.images.deathVision);
 		this.load.image(ASSETS.images.lanes, ASSETS.images.lanes);
 		this.load.image(ASSETS.images.lanesGlow, ASSETS.images.lanesGlow);
 		this.load.image(ASSETS.images.player, ASSETS.images.player);
@@ -69,6 +72,15 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.background.setDisplaySize(CONFIG.width, CONFIG.height);
 		this.background.setDepth(DEPTH_BACKGROUND);
+
+		this.deathVision = this.add.image(
+			H_CENTER,
+			V_CENTER,
+			ASSETS.images.deathVision
+		);
+		this.deathVision.setDisplaySize(CONFIG.width, CONFIG.height);
+		this.deathVision.setDepth(DEPTH_UI);
+		this.deathVision.setAlpha(0);
 
 		this.lanes = this.add.sprite(H_CENTER, V_CENTER, ASSETS.images.lanes);
 		this.lanes.setDisplaySize(CONFIG.width, CONFIG.height);
@@ -134,22 +146,39 @@ export class GameScene extends Phaser.Scene {
 			callback: () => this.onQuarterBeat(),
 		});
 		this.sound.play(ASSETS.audio.gameSong, {
-			loop: true,
+			onComplete: () => {
+				// TODO end of game
+			},
 		});
 
 		this.notes = [];
 		this.findNextNote();
 
-		this.score = this.add.text(
+		this.scoreTitleText = this.add.text(
 			H_CENTER,
-			3.0 * CONFIG.widthPercentUnit,
+			1.5 * CONFIG.widthPercentUnit,
 			"Score",
 			{
-				fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+				fontSize: Math.floor(1 * CONFIG.widthPercentUnit),
 				fontFamily: "Tahoma",
 			}
 		);
-		this.score.setDisplayOrigin(0, 0);
+		this.scoreTitleText.setDepth(DEPTH_UI);
+		this.scoreTitleText.setX(H_CENTER - this.scoreTitleText.width / 2);
+
+		this.scoreText = this.add.text(H_CENTER, 3 * CONFIG.widthPercentUnit, "", {
+			fontSize: Math.floor(3 * CONFIG.widthPercentUnit),
+			fontFamily: "Tahoma",
+		});
+		this.scoreText.setDepth(DEPTH_UI);
+
+		this.comboText = this.add.text(H_CENTER, 7 * CONFIG.widthPercentUnit, "", {
+			fontSize: Math.floor(1.5 * CONFIG.widthPercentUnit),
+			fontFamily: "Tahoma",
+		});
+		this.comboText.setDepth(DEPTH_UI);
+
+		this.updateScoreText();
 
 		if (CONFIG.debug) {
 			this.debug = this.add.text(0, 0, "debug", {
@@ -201,8 +230,8 @@ export class GameScene extends Phaser.Scene {
 		const lane = this.youTargetLane;
 		const fromRadius = YOU_UNIT / 8;
 		const toRadius = PLAYER_UNIT / 4;
-		const fromX = this.targetX(YOU_CENTER_X, YOU_LANE_SHIFT * 0.8, lane);
-		const toX = this.targetX(PLAYER_CENTER_X, PLAYER_LANE_SHIFT * 0.9, lane);
+		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
+		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
 		const fromY = YOU_Y;
 		const toY = PLAYER_Y;
 		const note = this.add.circle(
@@ -218,7 +247,7 @@ export class GameScene extends Phaser.Scene {
 			radius: { from: fromRadius, to: toRadius },
 			x: { from: fromX, to: toX },
 			y: { from: fromY, to: toY },
-			ease: Phaser.Math.Easing.Quadratic.In,
+			ease: Phaser.Math.Easing.Circular.In,
 			onComplete: () => {
 				if (this.playerTargetLane === lane) {
 					return this.noteSucceed(note);
@@ -255,6 +284,9 @@ export class GameScene extends Phaser.Scene {
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
 	noteSucceed(note) {
+		this.health = Math.min(100, this.health + 5);
+		this.combo += 1;
+		this.score += 100 * this.combo;
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
@@ -266,6 +298,7 @@ export class GameScene extends Phaser.Scene {
 				note.destroy();
 			},
 		});
+		this.updateScoreText();
 	}
 
 	/**
@@ -273,6 +306,8 @@ export class GameScene extends Phaser.Scene {
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
 	noteFail(note) {
+		this.health -= 15;
+		this.combo = 0;
 		this.add.tween({
 			targets: note,
 			duration: QUARTER_BEAT_MS,
@@ -284,6 +319,10 @@ export class GameScene extends Phaser.Scene {
 				note.destroy();
 			},
 		});
+		this.updateScoreText();
+		if (this.health <= 0) {
+			// TODO game over
+		}
 	}
 
 	/**
@@ -304,15 +343,23 @@ export class GameScene extends Phaser.Scene {
 		}
 	}
 
-	targetX(center, shift, lane) {
+	targetX(shift, lane) {
 		switch (lane) {
 			case 0:
-				return center - shift;
+				return H_CENTER - shift;
 			case 1:
-				return center;
+				return H_CENTER;
 			case 2:
-				return center + shift;
+				return H_CENTER + shift;
 		}
+	}
+
+	updateScoreText() {
+		this.scoreText.setText(this.score.toLocaleString());
+		this.comboText.setText("COMBO ×" + this.combo.toLocaleString());
+		this.scoreText.setX(H_CENTER - this.scoreText.width / 2);
+		this.comboText.setX(H_CENTER - this.comboText.width / 2);
+		this.deathVision.setAlpha(1 - this.health / 100);
 	}
 
 	update(time, delta) {
@@ -329,14 +376,14 @@ export class GameScene extends Phaser.Scene {
 		// move player
 		this.moveToTarget(
 			this.player,
-			this.targetX(PLAYER_CENTER_X, PLAYER_LANE_SHIFT, this.playerTargetLane),
+			this.targetX(PLAYER_LANE_SHIFT, this.playerTargetLane),
 			delta * PLAYER_SPEED
 		);
 
 		// move you
 		this.moveToTarget(
 			this.you,
-			this.targetX(YOU_CENTER_X, YOU_LANE_SHIFT, this.youTargetLane),
+			this.targetX(YOU_LANE_SHIFT, this.youTargetLane),
 			delta * YOU_SPEED
 		);
 	}
