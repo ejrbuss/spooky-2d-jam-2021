@@ -4,7 +4,7 @@ import { BEATMAP } from "../beatmap.js";
 import { CONFIG } from "../config.js";
 import { MainMenuScene } from "./main-menu-scene.js";
 
-const LATENCY_FIX_MS = -100;
+const LATENCY_FIX_MS = 10;
 
 const LANE_LEFT = 0;
 const LANE_CENTER = 1;

@@ -6,9 +6,10 @@
  *  - 2 for blue lane
  */
 export const BEATMAP = [
-	0,
+	null,
 	null,
 	null,
+	null,
 	0,
 	null,
 	null,
@@ -483,5 +484,5 @@ export const BEATMAP = [
 	null,
 	1,
 	null,
-	1
+	1,
 ];

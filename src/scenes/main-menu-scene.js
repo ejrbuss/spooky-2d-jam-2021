@@ -60,10 +60,7 @@ export class MainMenuScene extends Phaser.Scene {
 		this.input.keyboard.on(
 			Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
 			({ keyCode }) => {
-				if (
-					keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE ||
-					keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER
-				) {
+				if (keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE) {
 					this.play();
 				}
 			}
