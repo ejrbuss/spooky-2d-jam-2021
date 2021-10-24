@@ -56,6 +56,18 @@ export class MainMenuScene extends Phaser.Scene {
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
 			this.scene.start(OpeningScene.name);
 		});
+		this.input.keyboard.on(
+			Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
+			({ keyCode }) => {
+				console.log(keyCode);
+				if (
+					keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE ||
+					keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER
+				) {
+					this.scene.start(OpeningScene.name);
+				}
+			}
+		);
 		this.cameras.main.fadeIn(1000);
 	}
 

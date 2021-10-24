@@ -28,7 +28,7 @@ const V_CENTER = CONFIG.height / 2;
 
 const NOTE_HEIGHT_RATIO = 0.6;
 
-const PLAYER_UNIT = 10.0 * CONFIG.widthPercentUnit;
+const PLAYER_UNIT = 15.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
 const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
 
@@ -257,13 +257,13 @@ export class GameScene extends Phaser.Scene {
 
 	emitNote() {
 		const lane = this.youTargetLane;
-		const fromWidth = YOU_UNIT / 8;
-		const toWidth = PLAYER_UNIT;
+		const fromWidth = 1.0 * CONFIG.widthPercentUnit;
+		const toWidth = 10.0 * CONFIG.widthPercentUnit;
 		const fromHeight = fromWidth * NOTE_HEIGHT_RATIO;
 		const toHeight = toWidth * NOTE_HEIGHT_RATIO;
 		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
 		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
-		const fromY = YOU_Y;
+		const fromY = YOU_Y + 1.0 * CONFIG.heightPercentUnit;
 		const toY = PLAYER_Y;
 		const note = this.add.sprite(fromX, fromY, ASSETS.images.notes[lane]);
 		note.setDisplaySize(fromWidth, fromHeight);
@@ -366,12 +366,15 @@ export class GameScene extends Phaser.Scene {
 	 */
 	moveToTarget(toMove, targetX, maxDelta) {
 		if (toMove.x === targetX) {
+			toMove.setRotation(0);
 			return;
 		}
 		if (toMove.x > targetX) {
 			toMove.setX(Math.max(targetX, toMove.x - maxDelta));
+			toMove.setRotation(-Math.PI / 12);
 		} else {
 			toMove.setX(Math.min(targetX, toMove.x + maxDelta));
+			toMove.setRotation(+Math.PI / 12);
 		}
 	}
 
