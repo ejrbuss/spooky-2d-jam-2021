@@ -30,7 +30,12 @@ import note3 from "./assets/images/note3.png";
 import noteSuccess from "./assets/images/note-success.png";
 import noteFail from "./assets/images/note-fail.png";
 
-import ghost from "./assets/images/placeholder-ghost.jpg";
+import ghostie1 from "./assets/images/ghostie1.png";
+import ghostie2 from "./assets/images/ghostie2.png";
+import ghostie3 from "./assets/images/ghostie3.png";
+import ghostie4 from "./assets/images/ghostie4.png";
+import ghostie5 from "./assets/images/ghostie5.png";
+import ghostie6 from "./assets/images/ghostie-cameo.png";
 
 import menuSong from "./assets/audio/menu-song.mp3";
 import gameSong from "./assets/audio/game-song.mp3";
@@ -55,7 +60,7 @@ export const ASSETS = {
 		notes: [note1, note2, note3],
 		noteSuccess,
 		noteFail,
-		ghost,
+		ghosties: [ghostie1, ghostie2, ghostie3, ghostie4, ghostie5, ghostie6],
 	},
 	audio: {
 		log1: log1,

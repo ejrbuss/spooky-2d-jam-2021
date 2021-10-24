@@ -29,15 +29,16 @@ const NOTE_HEIGHT_RATIO = 0.6;
 
 const PLAYER_UNIT = 15.0 * CONFIG.widthPercentUnit;
 const PLAYER_Y = CONFIG.height - 0.75 * PLAYER_UNIT;
-const PLAYER_LANE_SHIFT = 21.0 * CONFIG.widthPercentUnit;
+const PLAYER_LANE_SHIFT = 19.0 * CONFIG.widthPercentUnit;
 
 const YOU_UNIT = 4.0 * CONFIG.widthPercentUnit;
 const YOU_Y = V_CENTER - 16 * CONFIG.heightPercentUnit;
-const YOU_LANE_SHIFT = 3 * CONFIG.widthPercentUnit;
+const YOU_LANE_SHIFT = 2.5 * CONFIG.widthPercentUnit;
 
 const PLAYER_SPEED = 0.1 * CONFIG.widthPercentUnit;
 const YOU_SPEED = 0.01 * CONFIG.widthPercentUnit;
 const SCROLL_SPEED = 0.01 * CONFIG.heightPercentUnit;
+const GHOSTIE_SPEED = 0.005 * CONFIG.widthPercentUnit;
 
 const TEMPO = 80; // in bpm
 const QUARTER_BEAT_MS = (60 * 1000) / (TEMPO * 4);
@@ -47,7 +48,7 @@ const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
 const NOTE_LATENCY_MS = QUARTER_BEAT_MS / 16;
 const SONG_LATENCY_MS = 4;
 
-const GHOST_COUNT = 1;
+const GHOSTIE_COUNT = 6;
 
 const COUNT_IN_QUARTER_BEAT_COUNT = Math.ceil(1000 / QUARTER_BEAT_MS);
 
@@ -77,7 +78,9 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
 		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
-		this.load.image(ASSETS.images.ghost, ASSETS.images.ghost);
+		ASSETS.images.ghosties.forEach((ghostieImage) => {
+			this.load.image(ghostieImage, ghostieImage);
+		});
 
 		this.load.audio(ASSETS.audio.gameSong, ASSETS.audio.gameSong);
 		this.load.audio(ASSETS.audio.hit, ASSETS.audio.hit);
@@ -230,10 +233,21 @@ export class GameScene extends Phaser.Scene {
 		});
 
 		// ghosties
-		for (let i = 0; i < GHOST_COUNT; i += 1) {}
-		this.ghost = this.add.sprite(H_CENTER, V_CENTER, ASSETS.images.ghost);
-		this.ghost.setDisplaySize(YOU_UNIT, YOU_UNIT);
-		this.ghost.setDepth(DEPTH_UI);
+		this.ghosties = [];
+		for (let i = 0; i < GHOSTIE_COUNT; i++) {
+			const ghostie = this.add.sprite(
+				this.getRandomInt(CONFIG.width),
+				this.getRandomInt(CONFIG.height),
+				ASSETS.images.ghosties[i]
+			);
+			ghostie.endX = this.getRandomInt(CONFIG.width);
+			ghostie.endY = this.getRandomInt(CONFIG.height);
+			ghostie.speed = Math.random() * GHOSTIE_SPEED;
+			ghostie.setDisplaySize(YOU_UNIT, YOU_UNIT);
+			ghostie.setDepth(DEPTH_BACKGROUND);
+			ghostie.setAlpha(0.8);
+			this.ghosties.push(ghostie);
+		}
 
 		this.cameras.main.fadeIn(1000);
 	}
@@ -288,7 +302,7 @@ export class GameScene extends Phaser.Scene {
 		const toWidth = 10.0 * CONFIG.widthPercentUnit;
 		const fromHeight = fromWidth * NOTE_HEIGHT_RATIO;
 		const toHeight = toWidth * NOTE_HEIGHT_RATIO;
-		const fromX = this.targetX(YOU_LANE_SHIFT * 0.8, lane);
+		const fromX = this.targetX(YOU_LANE_SHIFT * 0.9, lane);
 		const toX = this.targetX(PLAYER_LANE_SHIFT * 0.9, lane);
 		const fromY = YOU_Y + 1.0 * CONFIG.heightPercentUnit;
 		const toY = PLAYER_Y;
@@ -348,7 +362,7 @@ export class GameScene extends Phaser.Scene {
 			targets: note,
 			duration: QUARTER_BEAT_MS,
 			alpha: { from: 1, to: 0 },
-			scale: { from: 1, to: 2 },
+			scale: { from: 1, to: 3 },
 			onComplete: () => {
 				note.destroy();
 			},
@@ -370,7 +384,7 @@ export class GameScene extends Phaser.Scene {
 			duration: QUARTER_BEAT_MS,
 			duration: QUARTER_BEAT_MS,
 			alpha: { from: 1, to: 0 },
-			scale: { from: 1, to: 2 },
+			scale: { from: 1, to: 3 },
 			onComplete: () => {
 				note.destroy();
 			},
@@ -393,10 +407,9 @@ export class GameScene extends Phaser.Scene {
 	 * @param {number} speed
 	 * @returns
 	 */
-	moveToTarget(toMove, targetX, maxDelta) {
+	moveToTargetX(toMove, targetX, maxDelta) {
 		if (toMove.x === targetX) {
-			toMove.setRotation(0);
-			return;
+			return toMove.setRotation(0);
 		}
 		if (toMove.x > targetX) {
 			toMove.setX(Math.max(targetX, toMove.x - maxDelta));
@@ -407,14 +420,35 @@ export class GameScene extends Phaser.Scene {
 		}
 	}
 
+	/**
+	 *
+	 * @param {Phaser.GameObjects.Sprite} toMove
+	 * @param {Phaser.GameObjects.Sprite} target
+	 * @param {number} speed
+	 * @returns
+	 */
+	moveToTargetY(toMove, targetY, maxDelta) {
+		if (toMove.y === targetY) {
+			toMove.setRotation(0);
+			return;
+		}
+		if (toMove.y > targetY) {
+			toMove.setY(Math.max(targetY, toMove.y - maxDelta));
+			toMove.setRotation(-Math.PI / 12);
+		} else {
+			toMove.setY(Math.min(targetY, toMove.y + maxDelta));
+			toMove.setRotation(+Math.PI / 12);
+		}
+	}
+
 	targetX(shift, lane) {
 		switch (lane) {
 			case LANE_LEFT:
-				return (H_CENTER - shift) * 1.01; //add slight 1% compensation to make up for uneven lanes
+				return H_CENTER - shift;
 			case LANE_CENTER:
 				return H_CENTER;
 			case LANE_RIGHT:
-				return (H_CENTER + shift) * 0.995;
+				return H_CENTER + shift;
 		}
 	}
 
@@ -438,18 +472,32 @@ export class GameScene extends Phaser.Scene {
 		);
 
 		// move player
-		this.moveToTarget(
+		this.moveToTargetX(
 			this.player,
 			this.targetX(PLAYER_LANE_SHIFT, this.playerTargetLane),
 			delta * PLAYER_SPEED
 		);
 
 		// move you
-		this.moveToTarget(
+		this.moveToTargetX(
 			this.you,
 			this.targetX(YOU_LANE_SHIFT, this.youTargetLane),
 			delta * YOU_SPEED
 		);
+
+		// move ghosties
+		this.ghosties.forEach((ghostie) => {
+			this.moveToTargetX(ghostie, ghostie.endX, delta * ghostie.speed);
+			this.moveToTargetY(ghostie, ghostie.endY, delta * ghostie.speed);
+			if (ghostie.x === ghostie.endX && ghostie.y === ghostie.y) {
+				ghostie.endX = this.getRandomInt(CONFIG.width);
+				ghostie.endY = this.getRandomInt(CONFIG.height);
+			}
+		});
+	}
+
+	getRandomInt(max) {
+		return Math.floor(Math.random() * max);
 	}
 
 	debugData(delta) {
