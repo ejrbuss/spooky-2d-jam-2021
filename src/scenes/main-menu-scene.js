@@ -15,6 +15,7 @@ export class MainMenuScene extends Phaser.Scene {
 			ASSETS.images.mainMenuBackground,
 			ASSETS.images.mainMenuBackground
 		);
+		this.load.audio(ASSETS.audio.menuSong, ASSETS.audio.menuSong);
 		this.targetShadowBlur = 0;
 		this.currentShadowBlur = 0;
 	}
@@ -54,21 +55,27 @@ export class MainMenuScene extends Phaser.Scene {
 			this.targetShadowBlur = 0;
 		});
 		this.playButton.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
-			this.scene.start(OpeningScene.name);
+			this.play();
 		});
 		this.input.keyboard.on(
 			Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
 			({ keyCode }) => {
-				console.log(keyCode);
 				if (
 					keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE ||
 					keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER
 				) {
-					this.scene.start(OpeningScene.name);
+					this.play();
 				}
 			}
 		);
+		this.menuSong = this.sound.add(ASSETS.audio.menuSong, { loop: true });
+		this.menuSong.play();
 		this.cameras.main.fadeIn(1000);
+	}
+
+	play() {
+		this.menuSong.stop();
+		this.scene.start(OpeningScene.name);
 	}
 
 	update(_time, delta) {

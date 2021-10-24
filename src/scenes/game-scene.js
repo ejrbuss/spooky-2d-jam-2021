@@ -46,6 +46,8 @@ const BEAT_MS = QUARTER_BEAT_MS * 4;
 const NOTE_TRAVEL_BEATS = 2;
 const NOTE_TRAVEL_MS = NOTE_TRAVEL_BEATS * BEAT_MS;
 
+const GHOST_COUNT = 1;
+
 export class GameScene extends Phaser.Scene {
 	constructor() {
 		super(GameScene.name);
@@ -72,8 +74,11 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.load.image(ASSETS.images.noteSuccess, ASSETS.images.noteSuccess);
 		this.load.image(ASSETS.images.noteFail, ASSETS.images.noteFail);
+		this.load.image(ASSETS.images.ghost, ASSETS.images.ghost);
 
 		this.load.audio(ASSETS.audio.gameSong, ASSETS.audio.gameSong);
+		this.load.audio(ASSETS.audio.hit, ASSETS.audio.hit);
+		this.load.audio(ASSETS.audio.miss, ASSETS.audio.miss);
 	}
 
 	create() {
@@ -195,10 +200,12 @@ export class GameScene extends Phaser.Scene {
 				fontFamily: "monospace",
 			});
 		}
+		this.gameSong = this.sound.add(ASSETS.audio.gameSong); //, { volume: 0.1 });
+		this.hitSound = this.sound.add(ASSETS.audio.hit);
+		this.missSound = this.sound.add(ASSETS.audio.miss);
 
 		this.cameras.main.fadeIn(1000);
 		this.time.delayedCall(1000, () => {
-			this.gameSong = this.sound.add(ASSETS.audio.gameSong); //, { volume: 0.1 });
 			this.gameSong.play();
 			this.gameSong.once(Phaser.Sound.Events.COMPLETE, () => {
 				this.cameras.main.fadeOut(1000);
@@ -215,6 +222,12 @@ export class GameScene extends Phaser.Scene {
 				callback: () => this.onQuarterBeat(),
 			});
 		});
+
+		// ghosties
+		for (let i = 0; i < GHOST_COUNT; i += 1) {}
+		this.ghost = this.add.sprite(H_CENTER, V_CENTER, ASSETS.images.ghost);
+		this.ghost.setDisplaySize(YOU_UNIT, YOU_UNIT);
+		this.ghost.setDepth(DEPTH_UI);
 	}
 
 	pressLeft() {
@@ -278,9 +291,9 @@ export class GameScene extends Phaser.Scene {
 			ease: Phaser.Math.Easing.Circular.In,
 			onComplete: () => {
 				if (this.playerTargetLane === lane) {
-					return this.noteSucceed(note);
+					return this.noteHit(note);
 				} else {
-					return this.noteFail(note);
+					return this.noteMiss(note);
 				}
 			},
 		});
@@ -311,7 +324,8 @@ export class GameScene extends Phaser.Scene {
 	 *
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
-	noteSucceed(note) {
+	noteHit(note) {
+		this.hitSound.play();
 		this.health = Math.min(100, this.health + 5);
 		this.combo += 1;
 		this.score += 100 * this.combo;
@@ -332,7 +346,8 @@ export class GameScene extends Phaser.Scene {
 	 *
 	 * @param {Phaser.GameObjects.Sprite} note
 	 */
-	noteFail(note) {
+	noteMiss(note) {
+		this.missSound.play();
 		this.health -= 15;
 		this.combo = 0;
 		note.setTexture(ASSETS.images.noteFail);

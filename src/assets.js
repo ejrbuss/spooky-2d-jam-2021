@@ -1,5 +1,7 @@
 // import your assets so webpack includes them
-import placeholderBackground from "./assets/images/placeholder-background.png";
+import favicon from "./assets/images/favicon.png";
+import mainMenuBackground from "./assets/images/placeholder-background.png";
+
 import cutscene1 from "./assets/images/cutscene1.png";
 import cutscene2 from "./assets/images/cutscene2.png";
 import cutscene3 from "./assets/images/cutscene3.png";
@@ -26,12 +28,18 @@ import note3 from "./assets/images/note3.png";
 import noteSuccess from "./assets/images/note-success.png";
 import noteFail from "./assets/images/note-fail.png";
 
+import ghost from "./assets/images/placeholder-ghost.jpg";
+
+import menuSong from "./assets/audio/menu-song.mp3";
 import gameSong from "./assets/audio/game-song.mp3";
+import hit from "./assets/audio/hit.mp3";
+import miss from "./assets/audio/miss.mp3";
 
 // map assets to path for autocomplete
 export const ASSETS = {
 	images: {
-		mainMenuBackground: placeholderBackground,
+		favicon,
+		mainMenuBackground,
 		gameBackground,
 		deathVision,
 		lanes,
@@ -44,6 +52,7 @@ export const ASSETS = {
 		notes: [note1, note2, note3],
 		noteSuccess,
 		noteFail,
+		ghost,
 	},
 	audio: {
 		log1: log1,
@@ -53,6 +62,9 @@ export const ASSETS = {
 		typeWriter2: typeWriter2,
 		typeWriter3: typeWriter3,
 		typeWriter4: typeWriter4,
+		menuSong,
 		gameSong,
+		hit,
+		miss,
 	},
 };
